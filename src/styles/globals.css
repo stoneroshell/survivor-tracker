@@ -15,10 +15,10 @@
   --ember: #b45309;
   --tribalGold: #b8860b;
 
-  /* Tribe colors – rich, saturated, slightly darkened */
-  --tribeRed: #991b1b;
-  --tribeBlue: #1e3a8a;
-  --tribeYellow: #a16207;
+  /* Tribe colors – Vatu, Kalo, Cila */
+  --tribeVatu: #f527da;
+  --tribeKalo: #27e7f5;
+  --tribeCila: #f57d27;
 
   /* Optional mono for stats/labels – system fallback when not loaded in layout */
   --font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace;
@@ -35,9 +35,9 @@
   --color-fireGlow: var(--fireGlow);
   --color-ember: var(--ember);
   --color-tribalGold: var(--tribalGold);
-  --color-tribeRed: var(--tribeRed);
-  --color-tribeBlue: var(--tribeBlue);
-  --color-tribeYellow: var(--tribeYellow);
+  --color-tribeVatu: var(--tribeVatu);
+  --color-tribeKalo: var(--tribeKalo);
+  --color-tribeCila: var(--tribeCila);
 
   /* Clean edges, not overly rounded */
   --radius-card: 0.5rem;

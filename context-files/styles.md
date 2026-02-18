@@ -54,14 +54,13 @@ Example token names:
 
 ### Tribe Colors
 
-These should feel rich and saturated but slightly darkened:
+These should feel rich and saturated:
 
-- tribeRed
-- tribeBlue
-- tribeYellow
+- **Vatu Tribe** – `#F527DA` (token: tribeVatu)
+- **Kalo Tribe** – `#27E7F5` (token: tribeKalo)
+- **Cila Tribe** – `#F57D27` (token: tribeCila)
 
-Avoid neon tones.
-Avoid bright default Tailwind colors.
+Avoid neon overload; use for tribe headers and accents.
 
 ---
 

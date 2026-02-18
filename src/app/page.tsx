@@ -1,3 +1,5 @@
+import { TribeBoard } from "@/components/TribeBoard";
+
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col items-center bg-transparent px-4 py-8 sm:px-6 lg:px-8">
@@ -12,10 +14,7 @@ export default function Home() {
         </header>
 
         <main className="w-full flex-1">
-          <div
-            className="min-h-[400px] w-full rounded-card border border-border/80 bg-surfaceCard p-8 transition-shadow duration-300 hover:shadow-fire-glow"
-            aria-label="Tracker grid placeholder"
-          />
+          <TribeBoard />
         </main>
       </div>
     </div>
