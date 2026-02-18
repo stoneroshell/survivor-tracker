@@ -1,38 +1,110 @@
 @import "tailwindcss";
 
+/* Dark Tribal Firelight – near-black charcoal, deep brown-black, fire accents */
 :root {
-  --background: #030304;
-  --foreground: #ffffff;
-  --surface: #0f1115;
-  --muted: #94a3b8;
-  --border: #1e293b;
-  --primary: #f7931a;
-  --primary-secondary: #ea580c;
-  --tertiary: #ffd600;
+  --backgroundPrimary: #0f0f0f;
+  --backgroundSecondary: #1a1814;
+  --surfaceCard: #1e1c18;
+  --foreground: #f5f5f4;
+  --muted: #a8a29e;
+  --border: #292524;
+
+  /* Firelight accents – used sparingly for glow and emphasis */
+  --firePrimary: #c2410c;
+  --fireGlow: #d97706;
+  --ember: #b45309;
+  --tribalGold: #b8860b;
+
+  /* Tribe colors – rich, saturated, slightly darkened */
+  --tribeRed: #991b1b;
+  --tribeBlue: #1e3a8a;
+  --tribeYellow: #a16207;
+
+  /* Optional mono for stats/labels – system fallback when not loaded in layout */
+  --font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace;
 }
 
 @theme inline {
-  --color-background: var(--background);
+  --color-backgroundPrimary: var(--backgroundPrimary);
+  --color-backgroundSecondary: var(--backgroundSecondary);
+  --color-surfaceCard: var(--surfaceCard);
   --color-foreground: var(--foreground);
-  --color-surface: var(--surface);
   --color-muted: var(--muted);
   --color-border: var(--border);
-  --color-primary: var(--primary);
-  --color-primary-secondary: var(--primary-secondary);
-  --color-tertiary: var(--tertiary);
+  --color-firePrimary: var(--firePrimary);
+  --color-fireGlow: var(--fireGlow);
+  --color-ember: var(--ember);
+  --color-tribalGold: var(--tribalGold);
+  --color-tribeRed: var(--tribeRed);
+  --color-tribeBlue: var(--tribeBlue);
+  --color-tribeYellow: var(--tribeYellow);
 
-  --radius-card: 1rem;
+  /* Clean edges, not overly rounded */
+  --radius-card: 0.5rem;
 
-  --shadow-glow-orange: 0 0 20px -5px rgba(234, 88, 12, 0.5);
-  --shadow-glow-orange-hover: 0 0 30px -5px rgba(247, 147, 26, 0.6);
-  --shadow-glow-gold: 0 0 20px rgba(255, 214, 0, 0.3);
-  --shadow-card-elevation: 0 0 50px -10px rgba(247, 147, 26, 0.1);
+  /* Subtle fire glow – never overpowering */
+  --shadow-fire-glow: 0 0 20px -8px rgba(192, 65, 12, 0.35);
 }
 
 body {
-  background: var(--background);
+  background: var(--backgroundPrimary);
   color: var(--foreground);
   font-family: var(--font-body), system-ui, sans-serif;
+}
+
+/* Firelight gradient – flicker like real fire, brighter center */
+@keyframes firelight-flicker {
+  0%,
+  100% {
+    opacity: 0.92;
+  }
+  12% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 0.88;
+  }
+  38% {
+    opacity: 0.97;
+  }
+  50% {
+    opacity: 0.9;
+  }
+  62% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 0.86;
+  }
+  88% {
+    opacity: 0.95;
+  }
+}
+
+.bg-firelight {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 120% 80% at 50% 100%,
+      rgba(217, 119, 6, 0.32) 0%,
+      rgba(184, 134, 11, 0.22) 25%,
+      rgba(192, 65, 12, 0.12) 50%,
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 80% 50% at 30% 92%,
+      rgba(180, 83, 9, 0.14) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 80% 50% at 70% 90%,
+      rgba(217, 119, 6, 0.12) 0%,
+      transparent 50%
+    );
+  animation: firelight-flicker 4s ease-in-out infinite;
 }
 
 .font-heading {
@@ -45,26 +117,4 @@ body {
 
 .font-mono {
   font-family: var(--font-mono), ui-monospace, monospace;
-}
-
-.bg-grid-pattern {
-  background-size: 50px 50px;
-  background-image:
-    linear-gradient(to right, rgba(30, 41, 59, 0.5) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(30, 41, 59, 0.5) 1px, transparent 1px);
-  mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
-}
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
-}
-
-.animate-float {
-  animation: float 8s ease-in-out infinite;
 }
