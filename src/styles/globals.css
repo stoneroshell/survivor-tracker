@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+:root {
+  --background: #030304;
+  --foreground: #ffffff;
+  --surface: #0f1115;
+  --muted: #94a3b8;
+  --border: #1e293b;
+  --primary: #f7931a;
+  --primary-secondary: #ea580c;
+  --tertiary: #ffd600;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-secondary: var(--primary-secondary);
+  --color-tertiary: var(--tertiary);
+
+  --radius-card: 1rem;
+
+  --shadow-glow-orange: 0 0 20px -5px rgba(234, 88, 12, 0.5);
+  --shadow-glow-orange-hover: 0 0 30px -5px rgba(247, 147, 26, 0.6);
+  --shadow-glow-gold: 0 0 20px rgba(255, 214, 0, 0.3);
+  --shadow-card-elevation: 0 0 50px -10px rgba(247, 147, 26, 0.1);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+.font-heading {
+  font-family: var(--font-heading), system-ui, sans-serif;
+}
+
+.font-body {
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+.font-mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+.bg-grid-pattern {
+  background-size: 50px 50px;
+  background-image:
+    linear-gradient(to right, rgba(30, 41, 59, 0.5) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(30, 41, 59, 0.5) 1px, transparent 1px);
+  mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.animate-float {
+  animation: float 8s ease-in-out infinite;
+}
