@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 export type TribeId = "vatu" | "kalo" | "cila";
 
@@ -45,15 +46,30 @@ function buildInitialPlayers(): Player[] {
   return players;
 }
 
-export const useSurvivorStore = create<SurvivorState>((set) => ({
-  players: buildInitialPlayers(),
-  viewMode: "tribe",
-  setPlayers: (players) => set({ players }),
-  setViewMode: (viewMode) => set({ viewMode }),
-  setPlayerAllianceColor: (playerId, allianceColor) =>
-    set((state) => ({
-      players: state.players.map((p) =>
-        p.id === playerId ? { ...p, allianceColor } : p
+const initialPlayers = buildInitialPlayers();
+
+export const useSurvivorStore = create<SurvivorState>()(
+  persist(
+    (set) => ({
+      players: initialPlayers,
+      viewMode: "tribe",
+      setPlayers: (players) => set({ players }),
+      setViewMode: (viewMode) => set({ viewMode }),
+      setPlayerAllianceColor: (playerId, allianceColor) =>
+        set((state) => ({
+          players: state.players.map((p) =>
+            p.id === playerId ? { ...p, allianceColor } : p
+          ),
+        })),
+    }),
+    {
+      name: "survivor-50-tracker",
+      partialize: (state) => ({ players: state.players, viewMode: state.viewMode }),
+      storage: createJSONStorage(() =>
+        typeof window !== "undefined"
+          ? localStorage
+          : { getItem: () => null, setItem: () => {}, removeItem: () => {} }
       ),
-    })),
-}));
+    }
+  )
+);
