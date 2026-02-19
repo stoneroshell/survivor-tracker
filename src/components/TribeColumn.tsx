@@ -85,6 +85,7 @@ function SortablePlayerCard({
         image={player.image}
         allianceColor={player.allianceColor}
         tribeBorderClass={tribeBorderClass}
+        status={player.status}
         {...attributes}
         {...listeners}
       />

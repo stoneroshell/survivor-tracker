@@ -11,6 +11,7 @@ import {
 import { arrayMove } from "@dnd-kit/sortable";
 import type { Player, TribeId } from "@/store/useSurvivorStore";
 import { useSurvivorStore } from "@/store/useSurvivorStore";
+import { PlayerCard } from "./PlayerCard";
 import { TribeColumn } from "./TribeColumn";
 
 const TRIBE_CONFIG: Array<{
@@ -23,9 +24,12 @@ const TRIBE_CONFIG: Array<{
   { tribeId: "cila", tribeName: "Cila Tribe", headerColorClass: "text-tribeCila" },
 ];
 
-function getPlayersByTribe(players: Player[]) {
+const ACTIVE = "active" as const;
+
+function getActivePlayersByTribe(players: Player[]) {
+  const active = players.filter((p) => p.status === ACTIVE);
   const byTribe = (tribeId: TribeId) =>
-    players
+    active
       .filter((p) => p.tribe === tribeId)
       .sort((a, b) => a.tribeOrder - b.tribeOrder);
   return {
@@ -39,16 +43,40 @@ function withTribeOrder<T extends Player>(list: T[]): T[] {
   return list.map((p, i) => ({ ...p, tribeOrder: i })) as T[];
 }
 
-function rebuildPlayers(
+function mergeActiveIntoPlayers(
+  allPlayers: Player[],
   vatu: Player[],
   kalo: Player[],
   cila: Player[]
 ): Player[] {
+  const jury = allPlayers.filter((p) => p.status === "jury");
+  const eliminated = allPlayers.filter((p) => p.status === "eliminated");
   return [
     ...withTribeOrder(vatu),
     ...withTribeOrder(kalo),
     ...withTribeOrder(cila),
+    ...jury,
+    ...eliminated,
   ];
+}
+
+const TRIBE_BORDER: Record<TribeId, "border-tribeVatu" | "border-tribeKalo" | "border-tribeCila"> = {
+  vatu: "border-tribeVatu",
+  kalo: "border-tribeKalo",
+  cila: "border-tribeCila",
+};
+
+function TribeBoardStaticCard({ player }: { player: Player }) {
+  return (
+    <PlayerCard
+      playerId={player.id}
+      name={player.name}
+      image={player.image}
+      allianceColor={player.allianceColor}
+      tribeBorderClass={TRIBE_BORDER[player.tribe]}
+      status={player.status}
+    />
+  );
 }
 
 export function TribeBoard() {
@@ -70,9 +98,9 @@ export function TribeBoard() {
     const overId = over.id as string;
 
     const activePlayer = players.find((p) => p.id === activeId);
-    if (!activePlayer) return;
+    if (!activePlayer || activePlayer.status !== ACTIVE) return;
 
-    const byTribe = getPlayersByTribe(players);
+    const byTribe = getActivePlayersByTribe(players);
     const sourceTribe = activePlayer.tribe;
     const sourceList = byTribe[sourceTribe];
     const sourceIndex = sourceList.findIndex((p) => p.id === activeId);
@@ -92,7 +120,7 @@ export function TribeBoard() {
         [sourceTribe]: newSourceList,
         [targetTribe]: newTargetList,
       };
-      setPlayers(rebuildPlayers(next.vatu, next.kalo, next.cila));
+      setPlayers(mergeActiveIntoPlayers(players, next.vatu, next.kalo, next.cila));
       return;
     }
 
@@ -107,7 +135,7 @@ export function TribeBoard() {
     if (sourceTribe === targetTribe) {
       const newList = arrayMove(sourceList, sourceIndex, targetIndex);
       const next = { ...byTribe, [sourceTribe]: newList };
-      setPlayers(rebuildPlayers(next.vatu, next.kalo, next.cila));
+      setPlayers(mergeActiveIntoPlayers(players, next.vatu, next.kalo, next.cila));
       return;
     }
 
@@ -123,10 +151,16 @@ export function TribeBoard() {
       [sourceTribe]: newSourceList,
       [targetTribe]: newTargetList,
     };
-    setPlayers(rebuildPlayers(next.vatu, next.kalo, next.cila));
+    setPlayers(mergeActiveIntoPlayers(players, next.vatu, next.kalo, next.cila));
   }
 
-  const byTribe = getPlayersByTribe(players);
+  const byTribe = getActivePlayersByTribe(players);
+  const juryPlayers = players
+    .filter((p) => p.status === "jury")
+    .sort((a, b) => a.tribeOrder - b.tribeOrder);
+  const eliminatedPlayers = players
+    .filter((p) => p.status === "eliminated")
+    .sort((a, b) => a.tribeOrder - b.tribeOrder);
 
   return (
     <DndContext
@@ -183,6 +217,38 @@ export function TribeBoard() {
           />
         ))}
         </div>
+
+        {juryPlayers.length > 0 && (
+          <section
+            className="flex flex-col gap-3"
+            aria-label="Jury members"
+          >
+            <h3 className="font-heading text-sm font-semibold uppercase tracking-wider text-muted">
+              Jury Members
+            </h3>
+            <div className="flex flex-wrap gap-3">
+              {juryPlayers.map((player) => (
+                <TribeBoardStaticCard key={player.id} player={player} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {eliminatedPlayers.length > 0 && (
+          <section
+            className="flex flex-col gap-3"
+            aria-label="Eliminated"
+          >
+            <h3 className="font-heading text-sm font-semibold uppercase tracking-wider text-muted">
+              Eliminated
+            </h3>
+            <div className="flex flex-wrap gap-3">
+              {eliminatedPlayers.map((player) => (
+                <TribeBoardStaticCard key={player.id} player={player} />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </DndContext>
   );

@@ -2,6 +2,7 @@
 
 import { forwardRef, useRef, useState, useEffect, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
+import type { PlayerStatus } from "@/store/useSurvivorStore";
 import { useSurvivorStore } from "@/store/useSurvivorStore";
 
 const ALLIANCE_PRESET_COLORS = [
@@ -27,6 +28,7 @@ export interface PlayerCardProps
   image: string;
   allianceColor: string | null;
   tribeBorderClass: "border-tribeVatu" | "border-tribeKalo" | "border-tribeCila";
+  status?: PlayerStatus;
   style?: React.CSSProperties;
   isDragging?: boolean;
 }
@@ -41,6 +43,7 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
       image,
       allianceColor,
       tribeBorderClass,
+      status = "active",
       style,
       isDragging,
       ...rest
@@ -50,6 +53,8 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
     const setPlayerAllianceColor = useSurvivorStore(
       (s) => s.setPlayerAllianceColor
     );
+    const setPlayerStatus = useSurvivorStore((s) => s.setPlayerStatus);
+    const isActive = status === "active";
     const [menuView, setMenuView] = useState<MenuView>("closed");
     const [dropdownRect, setDropdownRect] = useState<DOMRect | null>(null);
     const triggerRef = useRef<HTMLDivElement>(null);
@@ -98,6 +103,21 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
       setMenuView("closed");
     }
 
+    function handleEliminate() {
+      setPlayerStatus(playerId, "eliminated");
+      setMenuView("closed");
+    }
+
+    function handleEliminateToJury() {
+      setPlayerStatus(playerId, "jury");
+      setMenuView("closed");
+    }
+
+    function handleResurrect() {
+      setPlayerStatus(playerId, "active");
+      setMenuView("closed");
+    }
+
     const isMenuOpen = menuView !== "closed";
 
     return (
@@ -105,9 +125,11 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
         ref={ref}
         style={style}
         className={`relative flex min-h-[4rem] items-stretch gap-6 rounded-card border border-border/80 bg-surfaceCard px-3 py-2.5 ${
-          isDragging
-            ? "scale-[1.02] shadow-fire-glow transition-none"
-            : "transition-all duration-100 hover:scale-[1.04] hover:shadow-fire-glow"
+          !isActive
+            ? "opacity-55"
+            : isDragging
+              ? "scale-[1.02] shadow-fire-glow transition-none"
+              : "transition-all duration-100 hover:scale-[1.04] hover:shadow-fire-glow"
         }`}
         aria-label={`Player: ${name}`}
         {...rest}
@@ -118,7 +140,7 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
           <img
             src={image}
             alt={name}
-            className="h-full w-full object-cover"
+            className={`h-full w-full object-cover ${!isActive ? "grayscale" : ""}`}
             width={40}
             height={40}
           />
@@ -189,6 +211,36 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
                       Remove Alliance
                     </button>
                   )}
+                  {isActive && (
+                    <>
+                      <button
+                        type="button"
+                        className="w-full px-3 py-2 text-left text-sm text-firePrimary transition-colors hover:bg-border/40"
+                        role="menuitem"
+                        onClick={handleEliminate}
+                      >
+                        Eliminate
+                      </button>
+                      <button
+                        type="button"
+                        className="w-full px-3 py-2 text-left text-sm text-firePrimary transition-colors hover:bg-border/40"
+                        role="menuitem"
+                        onClick={handleEliminateToJury}
+                      >
+                        Eliminate and Send to Jury
+                      </button>
+                    </>
+                  )}
+                  {!isActive && (
+                    <button
+                      type="button"
+                      className="w-full px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-border/40"
+                      role="menuitem"
+                      onClick={handleResurrect}
+                    >
+                      Resurrect
+                    </button>
+                  )}
                 </div>
               )}
               {menuView === "colors" && (
@@ -221,6 +273,26 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
             style={stripStyle}
             aria-hidden
           />
+        )}
+
+        {!isActive && (
+          <div
+            className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-card bg-black/20"
+            aria-hidden
+          >
+            <svg
+              viewBox="0 0 100 100"
+              className="h-full w-full max-h-[80%] max-w-[80%] text-firePrimary"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="20" y1="20" x2="80" y2="80" />
+              <line x1="80" y1="20" x2="20" y2="80" />
+            </svg>
+          </div>
         )}
       </article>
     );

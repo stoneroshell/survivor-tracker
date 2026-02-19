@@ -5,6 +5,8 @@ export type TribeId = "vatu" | "kalo" | "cila";
 
 export type ViewMode = "tribe" | "alliance";
 
+export type PlayerStatus = "active" | "eliminated" | "jury";
+
 export interface Player {
   id: string;
   name: string;
@@ -12,6 +14,7 @@ export interface Player {
   tribe: TribeId;
   tribeOrder: number;
   allianceColor: string | null;
+  status: PlayerStatus;
 }
 
 interface SurvivorState {
@@ -20,6 +23,7 @@ interface SurvivorState {
   setPlayers: (players: Player[]) => void;
   setViewMode: (viewMode: ViewMode) => void;
   setPlayerAllianceColor: (playerId: string, allianceColor: string | null) => void;
+  setPlayerStatus: (playerId: string, status: PlayerStatus) => void;
 }
 
 const PLACEHOLDER_IMAGE = "https://via.placeholder.com/150";
@@ -39,6 +43,7 @@ function buildInitialPlayers(): Player[] {
         tribe: tribeId,
         tribeOrder: i,
         allianceColor: null,
+        status: "active",
       });
     }
   });
@@ -61,10 +66,25 @@ export const useSurvivorStore = create<SurvivorState>()(
             p.id === playerId ? { ...p, allianceColor } : p
           ),
         })),
+      setPlayerStatus: (playerId, status) =>
+        set((state) => ({
+          players: state.players.map((p) =>
+            p.id === playerId ? { ...p, status } : p
+          ),
+        })),
     }),
     {
       name: "survivor-50-tracker",
       partialize: (state) => ({ players: state.players, viewMode: state.viewMode }),
+      migrate: (persisted: unknown) => {
+        const p = persisted as { players?: Player[]; viewMode?: ViewMode };
+        const players = (p?.players ?? []).map((player) => ({
+          ...player,
+          status: (player as Player).status ?? "active",
+        }));
+        return { ...p, players } as { players: Player[]; viewMode: ViewMode };
+      },
+      version: 1,
       storage: createJSONStorage(() =>
         typeof window !== "undefined"
           ? localStorage
