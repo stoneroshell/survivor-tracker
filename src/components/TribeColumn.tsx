@@ -1,22 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import {
-  DndContext,
-  PointerSensor,
-  KeyboardSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
+import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
   useSortable,
   verticalListSortingStrategy,
-  arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { Player } from "./TribeBoard";
+import type { Player, TribeId } from "./TribeBoard";
 import { PlayerCard } from "./PlayerCard";
 
 const HEADER_TO_BORDER = {
@@ -26,6 +17,7 @@ const HEADER_TO_BORDER = {
 };
 
 export interface TribeColumnProps {
+  tribeId: TribeId;
   tribeName: string;
   headerColorClass: "text-tribeVatu" | "text-tribeKalo" | "text-tribeCila";
   players: Player[];
@@ -59,7 +51,8 @@ function SortablePlayerCard({
         style={style}
         isDragging={isDragging}
         name={player.name}
-        imageUrl={player.imageUrl}
+        image={player.image}
+        icons={player.icons}
         tribeBorderClass={tribeBorderClass}
         {...attributes}
         {...listeners}
@@ -69,32 +62,22 @@ function SortablePlayerCard({
 }
 
 export function TribeColumn({
+  tribeId,
   tribeName,
   headerColorClass,
-  players: initialPlayers,
+  players,
 }: TribeColumnProps) {
-  const [players, setPlayers] = useState<Player[]>(initialPlayers);
+  const { setNodeRef, isOver } = useDroppable({
+    id: `tribe-${tribeId}`,
+  });
   const tribeBorderClass = HEADER_TO_BORDER[headerColorClass];
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 8 },
-    }),
-    useSensor(KeyboardSensor)
-  );
-
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    if (over == null || active.id === over.id) return;
-    const oldIndex = players.findIndex((p) => p.id === active.id);
-    const newIndex = players.findIndex((p) => p.id === over.id);
-    if (oldIndex === -1 || newIndex === -1) return;
-    setPlayers((prev) => arrayMove(prev, oldIndex, newIndex));
-  }
 
   return (
     <section
-      className="flex flex-col gap-4"
+      ref={setNodeRef}
+      className={`flex flex-col gap-4 rounded-card transition-colors duration-150 ${
+        isOver ? "bg-surfaceCard/50" : ""
+      }`}
       aria-label={`Tribe: ${tribeName}`}
     >
       <h2
@@ -102,29 +85,23 @@ export function TribeColumn({
       >
         {tribeName}
       </h2>
-      <DndContext
-        id={`tribe-dnd-${tribeName.replace(/\s+/g, "-")}`}
-        sensors={sensors}
-        onDragEnd={handleDragEnd}
+      <SortableContext
+        items={players.map((p) => p.id)}
+        strategy={verticalListSortingStrategy}
       >
-        <SortableContext
-          items={players.map((p) => p.id)}
-          strategy={verticalListSortingStrategy}
+        <ul
+          className="flex min-h-[2rem] flex-col gap-3"
+          aria-label={`Players in ${tribeName}`}
         >
-          <ul
-            className="flex flex-col gap-3"
-            aria-label={`Players in ${tribeName}`}
-          >
-            {players.map((player) => (
-              <SortablePlayerCard
-                key={player.id}
-                player={player}
-                tribeBorderClass={tribeBorderClass}
-              />
-            ))}
-          </ul>
-        </SortableContext>
-      </DndContext>
+          {players.map((player) => (
+            <SortablePlayerCard
+              key={player.id}
+              player={player}
+              tribeBorderClass={tribeBorderClass}
+            />
+          ))}
+        </ul>
+      </SortableContext>
     </section>
   );
 }

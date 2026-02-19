@@ -6,7 +6,8 @@ export interface PlayerCardProps
     "className" | "style"
   > {
   name: string;
-  imageUrl: string;
+  image: string;
+  icons: string[];
   tribeBorderClass: "border-tribeVatu" | "border-tribeKalo" | "border-tribeCila";
   style?: React.CSSProperties;
   isDragging?: boolean;
@@ -14,7 +15,7 @@ export interface PlayerCardProps
 
 export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
   function PlayerCard(
-    { name, imageUrl, tribeBorderClass, style, isDragging, ...rest },
+    { name, image, icons, tribeBorderClass, style, isDragging, ...rest },
     ref
   ) {
     return (
@@ -33,7 +34,7 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
           className={`relative h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 ${tribeBorderClass}`}
         >
           <img
-            src={imageUrl}
+            src={image}
             alt={name}
             className="h-full w-full object-cover"
             width={40}
@@ -47,9 +48,28 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
             </p>
           </div>
           <div className="flex justify-end gap-1.5" aria-hidden="true">
-            <span className="h-4 w-4 shrink-0 rounded-full border border-border/60 bg-surfaceCard" />
-            <span className="h-4 w-4 shrink-0 rounded-full border border-border/60 bg-surfaceCard" />
-            <span className="h-4 w-4 shrink-0 rounded-full border border-border/60 bg-surfaceCard" />
+            {icons.length > 0
+              ? icons.map((icon, i) => (
+                  <span
+                    key={i}
+                    className="h-4 w-4 shrink-0 rounded-full border border-border/60 bg-surfaceCard"
+                    title={icon}
+                  />
+                ))
+              : [
+                  <span
+                    key="1"
+                    className="h-4 w-4 shrink-0 rounded-full border border-border/60 bg-surfaceCard"
+                  />,
+                  <span
+                    key="2"
+                    className="h-4 w-4 shrink-0 rounded-full border border-border/60 bg-surfaceCard"
+                  />,
+                  <span
+                    key="3"
+                    className="h-4 w-4 shrink-0 rounded-full border border-border/60 bg-surfaceCard"
+                  />,
+                ]}
           </div>
         </div>
       </article>
