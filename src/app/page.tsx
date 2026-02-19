@@ -44,7 +44,7 @@ export default function Home() {
             Survivor 50 Companion
           </h1>
           <p className="mt-2 text-lg leading-relaxed text-muted">
-            The Ultimate Survivor 50 Tracker
+            the ultimate unofficial survivor tracker
           </p>
         </header>
 
