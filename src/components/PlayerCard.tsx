@@ -4,6 +4,7 @@ import { forwardRef, useRef, useState, useEffect, useLayoutEffect } from "react"
 import { createPortal } from "react-dom";
 import type { AdvantageId, PlayerStatus } from "@/store/useSurvivorStore";
 import { useSurvivorStore } from "@/store/useSurvivorStore";
+import { AdvantageIcon } from "@/components/AdvantageIcon";
 
 const ADVANTAGE_CONFIG: Array<{
   id: AdvantageId;
@@ -75,6 +76,9 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
     const isActive = status === "active";
     const [menuView, setMenuView] = useState<MenuView>("closed");
     const [dropdownRect, setDropdownRect] = useState<DOMRect | null>(null);
+    const [justAddedSlotIndex, setJustAddedSlotIndex] = useState<number | null>(
+      null
+    );
     const triggerRef = useRef<HTMLDivElement>(null);
     const portalRef = useRef<HTMLDivElement>(null);
 
@@ -142,8 +146,11 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
     }
 
     function handleAddAdvantage(advantageId: AdvantageId) {
+      const newIndex = advantages.length;
       addPlayerAdvantage(playerId, advantageId);
+      setJustAddedSlotIndex(newIndex);
       setMenuView("closed");
+      setTimeout(() => setJustAddedSlotIndex(null), 400);
     }
 
     const isMenuOpen = menuView !== "closed";
@@ -195,10 +202,10 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
                     key={i}
                     className="flex h-[1.8rem] w-[1.8rem] shrink-0 items-center justify-center"
                   >
-                    <img
-                      src={config.imagePath}
-                      alt=""
-                      className="h-[1.8rem] w-[1.8rem] object-contain"
+                    <AdvantageIcon
+                      id={config.id}
+                      imagePath={config.imagePath}
+                      animateOnMount={justAddedSlotIndex === i}
                     />
                   </span>
                 );
