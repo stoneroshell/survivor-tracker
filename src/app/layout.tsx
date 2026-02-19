@@ -31,9 +31,9 @@ export const metadata: Metadata = {
     siteName: "Survivor 50 Tracker",
     images: [
       {
-        url: "/images/immunity-idol.svg",
-        width: 512,
-        height: 512,
+        url: "/images/og-image.png",
+        width: 1200,
+        height: 630,
         alt: "Survivor 50 Tracker",
       },
     ],
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Survivor 50 Tracker",
     description: "Strategy Companion Board for Survivor Season 50",
-    images: ["/images/immunity-idol.svg"],
+    images: ["/images/og-image.png"],
   },
 };
 
