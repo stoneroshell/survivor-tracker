@@ -131,5 +131,46 @@ body {
 
 .font-survivor {
   font-family: var(--font-survivor);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.8em;
+}
+
+/* Instructions modal – scale open/close, 1s ease-in-out */
+@keyframes instructions-modal-overlay-open {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes instructions-modal-overlay-close {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes instructions-modal-panel-open {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes instructions-modal-panel-close {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
 }
