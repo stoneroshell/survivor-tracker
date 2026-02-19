@@ -182,6 +182,7 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
               {name}
             </p>
           </div>
+          {/* Card advantage icons: 1.8rem = 50% larger than 1.2rem; keep container and img in sync to avoid blow-up */}
           <div className="flex justify-end gap-1.5" aria-hidden="true">
             {[0, 1, 2].map((i) => {
               const advantageId = advantages[i];
@@ -192,12 +193,12 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
                 return (
                   <span
                     key={i}
-                    className="flex h-4 w-4 shrink-0 items-center justify-center"
+                    className="flex h-[1.8rem] w-[1.8rem] shrink-0 items-center justify-center"
                   >
                     <img
                       src={config.imagePath}
                       alt=""
-                      className="h-4 w-4 object-contain"
+                      className="h-[1.8rem] w-[1.8rem] object-contain"
                     />
                   </span>
                 );
@@ -205,7 +206,7 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
               return (
                 <span
                   key={i}
-                  className="h-4 w-4 shrink-0 rounded-full border border-border/60 bg-surfaceCard"
+                  className="h-[1.8rem] w-[1.8rem] shrink-0 rounded-full border border-border/60 bg-surfaceCard"
                 />
               );
             })}
