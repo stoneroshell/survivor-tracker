@@ -147,7 +147,7 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
             onClick={() =>
               setMenuView((v) => (v === "closed" ? "menu" : "closed"))
             }
-            className="rounded px-1.5 py-0.5 text-muted transition-opacity duration-150 hover:bg-border/40 hover:text-foreground"
+            className="rounded px-1.5 py-0.5 text-[0.85em] text-muted transition-opacity duration-150 hover:bg-border/40 hover:text-foreground"
             aria-label="Alliance options"
             aria-expanded={isMenuOpen}
           >

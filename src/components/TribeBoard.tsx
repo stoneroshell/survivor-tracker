@@ -179,6 +179,7 @@ export function TribeBoard() {
             tribeName={config.tribeName}
             headerColorClass={config.headerColorClass}
             players={byTribe[config.tribeId]}
+            viewMode={viewMode}
           />
         ))}
         </div>
