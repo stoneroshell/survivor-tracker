@@ -2,6 +2,8 @@ import { create } from "zustand";
 
 export type TribeId = "vatu" | "kalo" | "cila";
 
+export type ViewMode = "tribe" | "alliance";
+
 export interface Player {
   id: string;
   name: string;
@@ -13,7 +15,9 @@ export interface Player {
 
 interface SurvivorState {
   players: Player[];
+  viewMode: ViewMode;
   setPlayers: (players: Player[]) => void;
+  setViewMode: (viewMode: ViewMode) => void;
   setPlayerAllianceColor: (playerId: string, allianceColor: string | null) => void;
 }
 
@@ -43,7 +47,9 @@ function buildInitialPlayers(): Player[] {
 
 export const useSurvivorStore = create<SurvivorState>((set) => ({
   players: buildInitialPlayers(),
+  viewMode: "tribe",
   setPlayers: (players) => set({ players }),
+  setViewMode: (viewMode) => set({ viewMode }),
   setPlayerAllianceColor: (playerId, allianceColor) =>
     set((state) => ({
       players: state.players.map((p) =>

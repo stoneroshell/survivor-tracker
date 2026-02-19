@@ -51,23 +51,11 @@ function rebuildPlayers(
   ];
 }
 
-const TEST_ALLIANCE_COLORS = [
-  "#b8860b", /* tribalGold */
-  "#d97706", /* fireGlow */
-  "#c2410c", /* firePrimary */
-  "#f527da", /* tribeVatu */
-  "#27e7f5", /* tribeKalo */
-  "#f57d27", /* tribeCila */
-];
-
-function pickRandom<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
 export function TribeBoard() {
   const players = useSurvivorStore((s) => s.players);
   const setPlayers = useSurvivorStore((s) => s.setPlayers);
-  const setPlayerAllianceColor = useSurvivorStore((s) => s.setPlayerAllianceColor);
+  const viewMode = useSurvivorStore((s) => s.viewMode);
+  const setViewMode = useSurvivorStore((s) => s.setViewMode);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -140,12 +128,6 @@ export function TribeBoard() {
 
   const byTribe = getPlayersByTribe(players);
 
-  function handleTestAllianceColor() {
-    const target = pickRandom(players);
-    const color = pickRandom(TEST_ALLIANCE_COLORS);
-    setPlayerAllianceColor(target.id, color);
-  }
-
   return (
     <DndContext
       id="tribe-board-dnd"
@@ -153,18 +135,43 @@ export function TribeBoard() {
       onDragEnd={handleDragEnd}
     >
       <div className="flex flex-col gap-4">
-        <button
-          type="button"
-          onClick={handleTestAllianceColor}
-          className="self-center rounded-card border border-border/80 bg-surfaceCard px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-surfaceCard/80 hover:shadow-fire-glow"
+        <div
+          className="flex justify-center gap-0 rounded-card border border-border/80 bg-surfaceCard p-0.5"
+          role="tablist"
+          aria-label="View mode"
         >
-          Test: random alliance color
-        </button>
-      <div
-        className="grid grid-cols-1 gap-8 md:grid-cols-3"
-        role="region"
-        aria-label="Tribe board"
-      >
+          <button
+            type="button"
+            role="tab"
+            aria-selected={viewMode === "tribe"}
+            onClick={() => setViewMode("tribe")}
+            className={`rounded-[calc(0.5rem-2px)] px-4 py-2 text-sm font-medium transition-colors ${
+              viewMode === "tribe"
+                ? "bg-border/60 text-foreground shadow-sm"
+                : "text-muted hover:text-foreground"
+            }`}
+          >
+            Tribe Standing View
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={viewMode === "alliance"}
+            onClick={() => setViewMode("alliance")}
+            className={`rounded-[calc(0.5rem-2px)] px-4 py-2 text-sm font-medium transition-colors ${
+              viewMode === "alliance"
+                ? "bg-border/60 text-foreground shadow-sm"
+                : "text-muted hover:text-foreground"
+            }`}
+          >
+            Alliance View
+          </button>
+        </div>
+        <div
+          className="grid grid-cols-1 gap-8 md:grid-cols-3"
+          role="region"
+          aria-label="Tribe board"
+        >
         {TRIBE_CONFIG.map((config) => (
           <TribeColumn
             key={config.tribeId}
@@ -174,7 +181,7 @@ export function TribeBoard() {
             players={byTribe[config.tribeId]}
           />
         ))}
-      </div>
+        </div>
       </div>
     </DndContext>
   );
