@@ -24,6 +24,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: "Survivor 50 Tracker",
   description: "Strategy Companion Board for Survivor Season 50",
+  icons: {
+    icon: "/images/og-image.png",
+  },
   openGraph: {
     title: "Survivor 50 Tracker",
     description: "Strategy Companion Board for Survivor Season 50",
