@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   DndContext,
   PointerSensor,
@@ -10,65 +9,34 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
+import type { Player, TribeId } from "@/store/useSurvivorStore";
+import { useSurvivorStore } from "@/store/useSurvivorStore";
 import { TribeColumn } from "./TribeColumn";
-
-const PLACEHOLDER_IMAGE = "https://via.placeholder.com/150";
-
-export type TribeId = "vatu" | "kalo" | "cila";
-
-export interface Player {
-  id: string;
-  name: string;
-  image: string;
-  icons: string[];
-  tribe: TribeId;
-}
-
-function buildPlaceholderPlayers(
-  tribeId: TribeId,
-  startIndex: number,
-  count: number
-): Player[] {
-  return Array.from({ length: count }, (_, i) => {
-    const num = startIndex + i + 1;
-    return {
-      id: `${tribeId}-${i}`,
-      name: `Player ${num}`,
-      image: PLACEHOLDER_IMAGE,
-      icons: [],
-      tribe: tribeId,
-    };
-  });
-}
 
 const TRIBE_CONFIG: Array<{
   tribeId: TribeId;
   tribeName: string;
   headerColorClass: "text-tribeVatu" | "text-tribeKalo" | "text-tribeCila";
 }> = [
-  {
-    tribeId: "vatu",
-    tribeName: "Vatu Tribe",
-    headerColorClass: "text-tribeVatu",
-  },
-  {
-    tribeId: "kalo",
-    tribeName: "Kalo Tribe",
-    headerColorClass: "text-tribeKalo",
-  },
-  {
-    tribeId: "cila",
-    tribeName: "Cila Tribe",
-    headerColorClass: "text-tribeCila",
-  },
+  { tribeId: "vatu", tribeName: "Vatu Tribe", headerColorClass: "text-tribeVatu" },
+  { tribeId: "kalo", tribeName: "Kalo Tribe", headerColorClass: "text-tribeKalo" },
+  { tribeId: "cila", tribeName: "Cila Tribe", headerColorClass: "text-tribeCila" },
 ];
 
 function getPlayersByTribe(players: Player[]) {
+  const byTribe = (tribeId: TribeId) =>
+    players
+      .filter((p) => p.tribe === tribeId)
+      .sort((a, b) => a.tribeOrder - b.tribeOrder);
   return {
-    vatu: players.filter((p) => p.tribe === "vatu"),
-    kalo: players.filter((p) => p.tribe === "kalo"),
-    cila: players.filter((p) => p.tribe === "cila"),
+    vatu: byTribe("vatu"),
+    kalo: byTribe("kalo"),
+    cila: byTribe("cila"),
   };
+}
+
+function withTribeOrder<T extends Player>(list: T[]): T[] {
+  return list.map((p, i) => ({ ...p, tribeOrder: i })) as T[];
 }
 
 function rebuildPlayers(
@@ -76,17 +44,30 @@ function rebuildPlayers(
   kalo: Player[],
   cila: Player[]
 ): Player[] {
-  return [...vatu, ...kalo, ...cila];
+  return [
+    ...withTribeOrder(vatu),
+    ...withTribeOrder(kalo),
+    ...withTribeOrder(cila),
+  ];
 }
 
-const initialPlayers = rebuildPlayers(
-  buildPlaceholderPlayers("vatu", 0, 8),
-  buildPlaceholderPlayers("kalo", 8, 8),
-  buildPlaceholderPlayers("cila", 16, 8)
-);
+const TEST_ALLIANCE_COLORS = [
+  "#b8860b", /* tribalGold */
+  "#d97706", /* fireGlow */
+  "#c2410c", /* firePrimary */
+  "#f527da", /* tribeVatu */
+  "#27e7f5", /* tribeKalo */
+  "#f57d27", /* tribeCila */
+];
+
+function pickRandom<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
 
 export function TribeBoard() {
-  const [players, setPlayers] = useState<Player[]>(initialPlayers);
+  const players = useSurvivorStore((s) => s.players);
+  const setPlayers = useSurvivorStore((s) => s.setPlayers);
+  const setPlayerAllianceColor = useSurvivorStore((s) => s.setPlayerAllianceColor);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -109,7 +90,6 @@ export function TribeBoard() {
     const sourceIndex = sourceList.findIndex((p) => p.id === activeId);
     if (sourceIndex === -1) return;
 
-    // Dropped on a tribe droppable (empty area) -> append to that tribe
     if (overId === "tribe-vatu" || overId === "tribe-kalo" || overId === "tribe-cila") {
       const targetTribe = overId.replace("tribe-", "") as TribeId;
       if (sourceTribe === targetTribe) return;
@@ -128,7 +108,6 @@ export function TribeBoard() {
       return;
     }
 
-    // Dropped on another player
     const overPlayer = players.find((p) => p.id === overId);
     if (!overPlayer) return;
 
@@ -138,14 +117,12 @@ export function TribeBoard() {
     if (targetIndex === -1) return;
 
     if (sourceTribe === targetTribe) {
-      // Reorder within same tribe
       const newList = arrayMove(sourceList, sourceIndex, targetIndex);
       const next = { ...byTribe, [sourceTribe]: newList };
       setPlayers(rebuildPlayers(next.vatu, next.kalo, next.cila));
       return;
     }
 
-    // Move to different tribe
     const updatedPlayer = { ...activePlayer, tribe: targetTribe };
     const newSourceList = sourceList.filter((p) => p.id !== activeId);
     const newTargetList = [
@@ -163,12 +140,26 @@ export function TribeBoard() {
 
   const byTribe = getPlayersByTribe(players);
 
+  function handleTestAllianceColor() {
+    const target = pickRandom(players);
+    const color = pickRandom(TEST_ALLIANCE_COLORS);
+    setPlayerAllianceColor(target.id, color);
+  }
+
   return (
     <DndContext
       id="tribe-board-dnd"
       sensors={sensors}
       onDragEnd={handleDragEnd}
     >
+      <div className="flex flex-col gap-4">
+        <button
+          type="button"
+          onClick={handleTestAllianceColor}
+          className="self-center rounded-card border border-border/80 bg-surfaceCard px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-surfaceCard/80 hover:shadow-fire-glow"
+        >
+          Test: random alliance color
+        </button>
       <div
         className="grid grid-cols-1 gap-8 md:grid-cols-3"
         role="region"
@@ -183,6 +174,7 @@ export function TribeBoard() {
             players={byTribe[config.tribeId]}
           />
         ))}
+      </div>
       </div>
     </DndContext>
   );

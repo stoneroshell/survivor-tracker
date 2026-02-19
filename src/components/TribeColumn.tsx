@@ -7,7 +7,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { Player, TribeId } from "./TribeBoard";
+import type { Player, TribeId } from "@/store/useSurvivorStore";
 import { PlayerCard } from "./PlayerCard";
 
 const HEADER_TO_BORDER = {
@@ -50,9 +50,10 @@ function SortablePlayerCard({
         ref={setNodeRef}
         style={style}
         isDragging={isDragging}
+        playerId={player.id}
         name={player.name}
         image={player.image}
-        icons={player.icons}
+        allianceColor={player.allianceColor}
         tribeBorderClass={tribeBorderClass}
         {...attributes}
         {...listeners}

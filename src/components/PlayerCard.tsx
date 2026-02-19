@@ -1,31 +1,113 @@
-import { forwardRef } from "react";
+"use client";
+
+import { forwardRef, useRef, useState, useEffect, useLayoutEffect } from "react";
+import { createPortal } from "react-dom";
+import { useSurvivorStore } from "@/store/useSurvivorStore";
+
+const ALLIANCE_PRESET_COLORS = [
+  "#E10600", // Crimson Red
+  "#1F3C88", // Deep Royal Blue
+  "#FFD100", // Tribal Gold
+  "#6A0DAD", // Royal Purple
+  "#228B22", // Forest Green
+  "#D4D4D4", // Light Gray
+  "#4B0082", // Indigo
+  "#A52A2A", // Burnt Brown
+  "#572C2C", // Dark Brown
+  "#9DC209", // Acid Lime
+] as const;
 
 export interface PlayerCardProps
   extends Omit<
     React.ComponentPropsWithoutRef<"article">,
     "className" | "style"
   > {
+  playerId: string;
   name: string;
   image: string;
-  icons: string[];
+  allianceColor: string | null;
   tribeBorderClass: "border-tribeVatu" | "border-tribeKalo" | "border-tribeCila";
   style?: React.CSSProperties;
   isDragging?: boolean;
 }
 
+type MenuView = "closed" | "menu" | "colors";
+
 export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
   function PlayerCard(
-    { name, image, icons, tribeBorderClass, style, isDragging, ...rest },
+    {
+      playerId,
+      name,
+      image,
+      allianceColor,
+      tribeBorderClass,
+      style,
+      isDragging,
+      ...rest
+    },
     ref
   ) {
+    const setPlayerAllianceColor = useSurvivorStore(
+      (s) => s.setPlayerAllianceColor
+    );
+    const [menuView, setMenuView] = useState<MenuView>("closed");
+    const [dropdownRect, setDropdownRect] = useState<DOMRect | null>(null);
+    const triggerRef = useRef<HTMLDivElement>(null);
+    const portalRef = useRef<HTMLDivElement>(null);
+
+    useLayoutEffect(() => {
+      if (menuView === "closed") {
+        setDropdownRect(null);
+        return;
+      }
+      const rect = triggerRef.current?.getBoundingClientRect();
+      if (rect) setDropdownRect(rect);
+    }, [menuView]);
+
+    useEffect(() => {
+      if (menuView === "closed") return;
+      function handleClickOutside(e: MouseEvent) {
+        const target = e.target as Node;
+        if (
+          triggerRef.current?.contains(target) ||
+          portalRef.current?.contains(target)
+        ) {
+          return;
+        }
+        setMenuView("closed");
+      }
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [menuView]);
+
+    const stripStyle =
+      allianceColor != null
+        ? {
+            backgroundColor: allianceColor,
+            boxShadow: `0 0 12px ${allianceColor}50`,
+          }
+        : undefined;
+
+    function handleSetAlliance(color: string) {
+      setPlayerAllianceColor(playerId, color);
+      setMenuView("closed");
+    }
+
+    function handleRemoveAlliance() {
+      setPlayerAllianceColor(playerId, null);
+      setMenuView("closed");
+    }
+
+    const isMenuOpen = menuView !== "closed";
+
     return (
       <article
         ref={ref}
         style={style}
-        className={`flex min-h-[4rem] items-stretch gap-6 rounded-card border border-border/80 bg-surfaceCard px-3 py-2.5 ${
+        className={`relative flex min-h-[4rem] items-stretch gap-6 rounded-card border border-border/80 bg-surfaceCard px-3 py-2.5 ${
           isDragging
             ? "scale-[1.02] shadow-fire-glow transition-none"
-            : "transition-all duration-100 hover:scale-[1.08] hover:shadow-fire-glow"
+            : "transition-all duration-100 hover:scale-[1.04] hover:shadow-fire-glow"
         }`}
         aria-label={`Player: ${name}`}
         {...rest}
@@ -48,30 +130,98 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
             </p>
           </div>
           <div className="flex justify-end gap-1.5" aria-hidden="true">
-            {icons.length > 0
-              ? icons.map((icon, i) => (
-                  <span
-                    key={i}
-                    className="h-4 w-4 shrink-0 rounded-full border border-border/60 bg-surfaceCard"
-                    title={icon}
-                  />
-                ))
-              : [
-                  <span
-                    key="1"
-                    className="h-4 w-4 shrink-0 rounded-full border border-border/60 bg-surfaceCard"
-                  />,
-                  <span
-                    key="2"
-                    className="h-4 w-4 shrink-0 rounded-full border border-border/60 bg-surfaceCard"
-                  />,
-                  <span
-                    key="3"
-                    className="h-4 w-4 shrink-0 rounded-full border border-border/60 bg-surfaceCard"
-                  />,
-                ]}
+            <span className="h-4 w-4 shrink-0 rounded-full border border-border/60 bg-surfaceCard" />
+            <span className="h-4 w-4 shrink-0 rounded-full border border-border/60 bg-surfaceCard" />
+            <span className="h-4 w-4 shrink-0 rounded-full border border-border/60 bg-surfaceCard" />
           </div>
         </div>
+
+        {/* Menu button – dropdown renders in portal so it appears above all cards */}
+        <div
+          ref={triggerRef}
+          className="absolute right-2 top-2"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          <button
+            type="button"
+            onClick={() =>
+              setMenuView((v) => (v === "closed" ? "menu" : "closed"))
+            }
+            className="rounded px-1.5 py-0.5 text-muted transition-opacity duration-150 hover:bg-border/40 hover:text-foreground"
+            aria-label="Alliance options"
+            aria-expanded={isMenuOpen}
+          >
+            •••
+          </button>
+        </div>
+
+        {/* Portal: menu and color picker render above all cards */}
+        {dropdownRect &&
+          createPortal(
+            <div
+              ref={portalRef}
+              className="fixed z-[9999] transition-opacity duration-150"
+              style={{
+                top: dropdownRect.bottom + 4,
+                right: window.innerWidth - dropdownRect.right,
+              }}
+            >
+              {menuView === "menu" && (
+                <div
+                  className="w-40 rounded-card border border-border bg-surfaceCard py-1 shadow-fire-glow"
+                  role="menu"
+                >
+                  <button
+                    type="button"
+                    className="w-full px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-border/40"
+                    role="menuitem"
+                    onClick={() => setMenuView("colors")}
+                  >
+                    Set Alliance
+                  </button>
+                  {allianceColor != null && (
+                    <button
+                      type="button"
+                      className="w-full px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-border/40"
+                      role="menuitem"
+                      onClick={handleRemoveAlliance}
+                    >
+                      Remove Alliance
+                    </button>
+                  )}
+                </div>
+              )}
+              {menuView === "colors" && (
+                <div
+                  className="grid grid-cols-5 gap-1.5 rounded-card border border-border bg-surfaceCard p-2 shadow-fire-glow"
+                  role="menu"
+                >
+                  {ALLIANCE_PRESET_COLORS.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      className="h-7 w-7 rounded-sm border border-border/60 transition-opacity hover:opacity-90"
+                      style={{
+                        backgroundColor: color,
+                        boxShadow: `0 0 8px ${color}40`,
+                      }}
+                      aria-label={`Set alliance color ${color}`}
+                      onClick={() => handleSetAlliance(color)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>,
+            document.body
+          )}
+
+        {allianceColor != null && (
+          <div
+            className="absolute right-0 top-0 h-full w-[5px] rounded-l-sm"
+            style={stripStyle}
+            aria-hidden
+          />
+        )}
       </article>
     );
   }
