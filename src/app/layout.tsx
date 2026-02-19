@@ -14,9 +14,35 @@ const inter = Inter({
   weight: ["400", "500", "600"],
 });
 
+const baseUrl =
+  process.env.VERCEL_URL != null
+    ? `https://${process.env.VERCEL_URL}`
+    : process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
   title: "Survivor 50 Tracker",
   description: "Strategy Companion Board for Survivor Season 50",
+  openGraph: {
+    title: "Survivor 50 Tracker",
+    description: "Strategy Companion Board for Survivor Season 50",
+    type: "website",
+    siteName: "Survivor 50 Tracker",
+    images: [
+      {
+        url: "/images/immunity-idol.svg",
+        width: 512,
+        height: 512,
+        alt: "Survivor 50 Tracker",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Survivor 50 Tracker",
+    description: "Strategy Companion Board for Survivor Season 50",
+    images: ["/images/immunity-idol.svg"],
+  },
 };
 
 export default function RootLayout({
