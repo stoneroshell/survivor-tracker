@@ -178,7 +178,7 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
           <img
             src={image}
             alt={name}
-            className={`h-full w-full object-cover ${!isActive ? "grayscale" : ""}`}
+            className={`h-full w-full object-cover object-top ${!isActive ? "grayscale" : ""}`}
             width={40}
             height={40}
           />
