@@ -74,6 +74,7 @@ function TribeBoardStaticCard({ player }: { player: Player }) {
       image={player.image}
       allianceColor={player.allianceColor}
       tribeBorderClass={TRIBE_BORDER[player.tribe]}
+      advantages={player.advantages}
       status={player.status}
       openMenuUpward
     />

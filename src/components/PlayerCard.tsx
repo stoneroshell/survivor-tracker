@@ -2,8 +2,18 @@
 
 import { forwardRef, useRef, useState, useEffect, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
-import type { PlayerStatus } from "@/store/useSurvivorStore";
+import type { AdvantageId, PlayerStatus } from "@/store/useSurvivorStore";
 import { useSurvivorStore } from "@/store/useSurvivorStore";
+
+const ADVANTAGE_CONFIG: Array<{
+  id: AdvantageId;
+  label: string;
+  imagePath: string;
+}> = [
+  { id: "immunity_idol", label: "Immunity Idol", imagePath: "/images/immunity-idol.svg" },
+  { id: "advantage", label: "Advantage", imagePath: "/images/advantage.svg" },
+  { id: "celebrity_advantage", label: "Celebrity Advantage", imagePath: "/images/celebrity-advantage.svg" },
+];
 
 const ALLIANCE_PRESET_COLORS = [
   "#E10600", // Crimson Red
@@ -28,13 +38,14 @@ export interface PlayerCardProps
   image: string;
   allianceColor: string | null;
   tribeBorderClass: "border-tribeVatu" | "border-tribeKalo" | "border-tribeCila";
+  advantages?: AdvantageId[];
   status?: PlayerStatus;
   openMenuUpward?: boolean;
   style?: React.CSSProperties;
   isDragging?: boolean;
 }
 
-type MenuView = "closed" | "menu" | "colors";
+type MenuView = "closed" | "menu" | "colors" | "advantages";
 
 export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
   function PlayerCard(
@@ -44,6 +55,7 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
       image,
       allianceColor,
       tribeBorderClass,
+      advantages = [],
       status = "active",
       openMenuUpward = false,
       style,
@@ -56,6 +68,7 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
       (s) => s.setPlayerAllianceColor
     );
     const setPlayerStatus = useSurvivorStore((s) => s.setPlayerStatus);
+    const addPlayerAdvantage = useSurvivorStore((s) => s.addPlayerAdvantage);
     const isActive = status === "active";
     const [menuView, setMenuView] = useState<MenuView>("closed");
     const [dropdownRect, setDropdownRect] = useState<DOMRect | null>(null);
@@ -120,7 +133,15 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
       setMenuView("closed");
     }
 
+    function handleAddAdvantage(advantageId: AdvantageId) {
+      addPlayerAdvantage(playerId, advantageId);
+      setMenuView("closed");
+    }
+
     const isMenuOpen = menuView !== "closed";
+    const advantageConfigById = Object.fromEntries(
+      ADVANTAGE_CONFIG.map((c) => [c.id, c])
+    );
 
     return (
       <article
@@ -154,9 +175,32 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
             </p>
           </div>
           <div className="flex justify-end gap-1.5" aria-hidden="true">
-            <span className="h-4 w-4 shrink-0 rounded-full border border-border/60 bg-surfaceCard" />
-            <span className="h-4 w-4 shrink-0 rounded-full border border-border/60 bg-surfaceCard" />
-            <span className="h-4 w-4 shrink-0 rounded-full border border-border/60 bg-surfaceCard" />
+            {[0, 1, 2].map((i) => {
+              const advantageId = advantages[i];
+              const config = advantageId
+                ? advantageConfigById[advantageId]
+                : null;
+              if (config) {
+                return (
+                  <span
+                    key={i}
+                    className="flex h-4 w-4 shrink-0 items-center justify-center"
+                  >
+                    <img
+                      src={config.imagePath}
+                      alt=""
+                      className="h-4 w-4 object-contain"
+                    />
+                  </span>
+                );
+              }
+              return (
+                <span
+                  key={i}
+                  className="h-4 w-4 shrink-0 rounded-full border border-border/60 bg-surfaceCard"
+                />
+              );
+            })}
           </div>
         </div>
 
@@ -220,6 +264,16 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
                       Remove Alliance
                     </button>
                   )}
+                  {advantages.length < 3 && (
+                    <button
+                      type="button"
+                      className="w-full px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-border/40"
+                      role="menuitem"
+                      onClick={() => setMenuView("advantages")}
+                    >
+                      Add Advantage
+                    </button>
+                  )}
                   {isActive && (
                     <>
                       <button
@@ -250,6 +304,29 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
                       Resurrect
                     </button>
                   )}
+                </div>
+              )}
+              {menuView === "advantages" && (
+                <div
+                  className="flex gap-2 rounded-card border border-border bg-surfaceCard p-2 shadow-fire-glow"
+                  role="menu"
+                >
+                  {ADVANTAGE_CONFIG.map(({ id, label, imagePath }) => (
+                    <button
+                      key={id}
+                      type="button"
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-border/60 transition-opacity hover:opacity-90"
+                      title={label}
+                      aria-label={label}
+                      onClick={() => handleAddAdvantage(id)}
+                    >
+                      <img
+                        src={imagePath}
+                        alt=""
+                        className="h-6 w-6 object-contain"
+                      />
+                    </button>
+                  ))}
                 </div>
               )}
               {menuView === "colors" && (

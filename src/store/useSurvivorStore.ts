@@ -7,6 +7,8 @@ export type ViewMode = "tribe" | "alliance";
 
 export type PlayerStatus = "active" | "eliminated" | "jury";
 
+export type AdvantageId = "immunity_idol" | "advantage" | "celebrity_advantage";
+
 export interface Player {
   id: string;
   name: string;
@@ -15,6 +17,7 @@ export interface Player {
   tribeOrder: number;
   allianceColor: string | null;
   status: PlayerStatus;
+  advantages: AdvantageId[];
 }
 
 interface SurvivorState {
@@ -24,6 +27,7 @@ interface SurvivorState {
   setViewMode: (viewMode: ViewMode) => void;
   setPlayerAllianceColor: (playerId: string, allianceColor: string | null) => void;
   setPlayerStatus: (playerId: string, status: PlayerStatus) => void;
+  addPlayerAdvantage: (playerId: string, advantageId: AdvantageId) => void;
 }
 
 const PLACEHOLDER_IMAGE = "https://via.placeholder.com/150";
@@ -44,6 +48,7 @@ function buildInitialPlayers(): Player[] {
         tribeOrder: i,
         allianceColor: null,
         status: "active",
+        advantages: [],
       });
     }
   });
@@ -72,6 +77,14 @@ export const useSurvivorStore = create<SurvivorState>()(
             p.id === playerId ? { ...p, status } : p
           ),
         })),
+      addPlayerAdvantage: (playerId, advantageId) =>
+        set((state) => ({
+          players: state.players.map((p) => {
+            const list = p.advantages ?? [];
+            if (p.id !== playerId || list.length >= 3) return p;
+            return { ...p, advantages: [...list, advantageId] };
+          }),
+        })),
     }),
     {
       name: "survivor-50-tracker",
@@ -81,6 +94,7 @@ export const useSurvivorStore = create<SurvivorState>()(
         const players = (p?.players ?? []).map((player) => ({
           ...player,
           status: (player as Player).status ?? "active",
+          advantages: (player as Player).advantages ?? [],
         }));
         return { ...p, players } as { players: Player[]; viewMode: ViewMode };
       },
