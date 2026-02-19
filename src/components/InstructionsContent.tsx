@@ -2,59 +2,6 @@
 
 const ICON_SIZE = 32;
 
-function TorchIcon() {
-  return (
-    <svg
-      width={ICON_SIZE}
-      height={ICON_SIZE}
-      viewBox="0 0 32 32"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className="mx-auto text-tribalGold"
-      aria-hidden
-    >
-      {/* Flame */}
-      <path
-        d="M16 2c0 4-4 8-4 12 0 3 1.5 5 4 5s4-2 4-5c0-4-4-8-4-12z"
-        fill="currentColor"
-        opacity={0.95}
-      />
-      <path
-        d="M16 6c0 2-2 5-2 8 0 2 1 3 2 3s2-1 2-3c0-3-2-6-2-8z"
-        fill="currentColor"
-        opacity={0.6}
-      />
-      {/* Stick */}
-      <line
-        x1="16"
-        y1="18"
-        x2="16"
-        y2="28"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function RedFlagIcon() {
-  return (
-    <svg
-      width={ICON_SIZE}
-      height={ICON_SIZE}
-      viewBox="0 0 32 32"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className="mx-auto text-firePrimary"
-      aria-hidden
-    >
-      <path d="M6 4v24M6 4l18 6v8L6 22" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M24 10v8L6 22V4l18 6z" fill="currentColor" fillOpacity={0.9} />
-    </svg>
-  );
-}
-
 function InfoIcon() {
   return (
     <svg
@@ -101,7 +48,19 @@ export function InstructionsContent() {
         </h2>
       </div>
 
-      <Section icon={<TorchIcon />} title="Tribes">
+      <Section
+        icon={
+          <img
+            src="/images/torch.svg"
+            alt=""
+            width={38}
+            height={38}
+            className="mx-auto h-[2.4rem] w-[2.4rem] object-contain"
+            aria-hidden
+          />
+        }
+        title="Tribes"
+      >
         <ul className="mx-auto list-disc list-inside space-y-2 text-left [max-width:theme(spacing.80)]">
           <li>Drag players to rank tribe hierarchy</li>
           <li>Move players between tribes</li>
@@ -109,7 +68,19 @@ export function InstructionsContent() {
         </ul>
       </Section>
 
-      <Section icon={<RedFlagIcon />} title="Alliances">
+      <Section
+        icon={
+          <img
+            src="/images/flag.svg"
+            alt=""
+            width={38}
+            height={38}
+            className="mx-auto h-[2.4rem] w-[2.4rem] object-contain"
+            aria-hidden
+          />
+        }
+        title="Alliances"
+      >
         <ul className="mx-auto list-disc list-inside space-y-2 text-left [max-width:theme(spacing.80)]">
           <li>Assign a single color banner to any player</li>
           <li>Switch to <strong>Alliance View</strong></li>
