@@ -29,6 +29,7 @@ export interface PlayerCardProps
   allianceColor: string | null;
   tribeBorderClass: "border-tribeVatu" | "border-tribeKalo" | "border-tribeCila";
   status?: PlayerStatus;
+  openMenuUpward?: boolean;
   style?: React.CSSProperties;
   isDragging?: boolean;
 }
@@ -44,6 +45,7 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
       allianceColor,
       tribeBorderClass,
       status = "active",
+      openMenuUpward = false,
       style,
       isDragging,
       ...rest
@@ -183,10 +185,17 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
             <div
               ref={portalRef}
               className="fixed z-[9999] transition-opacity duration-150"
-              style={{
-                top: dropdownRect.bottom + 4,
-                right: window.innerWidth - dropdownRect.right,
-              }}
+              style={
+                openMenuUpward
+                  ? {
+                      bottom: window.innerHeight - dropdownRect.top + 4,
+                      right: window.innerWidth - dropdownRect.right,
+                    }
+                  : {
+                      top: dropdownRect.bottom + 4,
+                      right: window.innerWidth - dropdownRect.right,
+                    }
+              }
             >
               {menuView === "menu" && (
                 <div
@@ -280,18 +289,11 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
             className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-card bg-black/20"
             aria-hidden
           >
-            <svg
-              viewBox="0 0 100 100"
-              className="h-full w-full max-h-[80%] max-w-[80%] text-firePrimary"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="20" y1="20" x2="80" y2="80" />
-              <line x1="80" y1="20" x2="20" y2="80" />
-            </svg>
+            <img
+              src="/images/eliminated-x.png"
+              alt=""
+              className="h-full w-full max-h-[80%] max-w-[80%] object-contain opacity-90"
+            />
           </div>
         )}
       </article>
