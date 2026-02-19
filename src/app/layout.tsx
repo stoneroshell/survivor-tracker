@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "@/styles/globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -57,6 +58,7 @@ export default function RootLayout({
       >
         <div className="bg-firelight" aria-hidden="true" />
         <div className="relative z-10">{children}</div>
+        <Analytics />
       </body>
     </html>
   );
