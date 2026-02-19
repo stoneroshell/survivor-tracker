@@ -28,6 +28,7 @@ interface SurvivorState {
   setPlayerAllianceColor: (playerId: string, allianceColor: string | null) => void;
   setPlayerStatus: (playerId: string, status: PlayerStatus) => void;
   addPlayerAdvantage: (playerId: string, advantageId: AdvantageId) => void;
+  removePlayerAdvantages: (playerId: string) => void;
 }
 
 const PLACEHOLDER_IMAGE = "https://via.placeholder.com/150";
@@ -84,6 +85,12 @@ export const useSurvivorStore = create<SurvivorState>()(
             if (p.id !== playerId || list.length >= 3) return p;
             return { ...p, advantages: [...list, advantageId] };
           }),
+        })),
+      removePlayerAdvantages: (playerId) =>
+        set((state) => ({
+          players: state.players.map((p) =>
+            p.id === playerId ? { ...p, advantages: [] } : p
+          ),
         })),
     }),
     {

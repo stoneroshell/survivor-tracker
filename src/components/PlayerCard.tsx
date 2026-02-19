@@ -69,6 +69,9 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
     );
     const setPlayerStatus = useSurvivorStore((s) => s.setPlayerStatus);
     const addPlayerAdvantage = useSurvivorStore((s) => s.addPlayerAdvantage);
+    const removePlayerAdvantages = useSurvivorStore(
+      (s) => s.removePlayerAdvantages
+    );
     const isActive = status === "active";
     const [menuView, setMenuView] = useState<MenuView>("closed");
     const [dropdownRect, setDropdownRect] = useState<DOMRect | null>(null);
@@ -115,6 +118,11 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
 
     function handleRemoveAlliance() {
       setPlayerAllianceColor(playerId, null);
+      setMenuView("closed");
+    }
+
+    function handleRemoveAdvantages() {
+      removePlayerAdvantages(playerId);
       setMenuView("closed");
     }
 
@@ -272,6 +280,16 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
                       onClick={() => setMenuView("advantages")}
                     >
                       Add Advantage
+                    </button>
+                  )}
+                  {advantages.length > 0 && (
+                    <button
+                      type="button"
+                      className="w-full px-3 py-2 text-left text-sm text-firePrimary transition-colors hover:bg-border/40"
+                      role="menuitem"
+                      onClick={handleRemoveAdvantages}
+                    >
+                      Remove Advantages
                     </button>
                   )}
                   {isActive && (

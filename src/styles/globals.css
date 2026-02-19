@@ -1,7 +1,17 @@
 @import "tailwindcss";
 
+/* Survivor display font – header and subhead only */
+@font-face {
+  font-family: "SURVIVOR";
+  src: url("/fonts/SURVIVOR.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Dark Tribal Firelight – near-black charcoal, deep brown-black, fire accents */
 :root {
+  --font-survivor: "SURVIVOR", system-ui, sans-serif;
   --backgroundPrimary: #0f0f0f;
   --backgroundSecondary: #1a1814;
   --surfaceCard: #1e1c18;
@@ -117,4 +127,9 @@ body {
 
 .font-mono {
   font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+.font-survivor {
+  font-family: var(--font-survivor);
+  letter-spacing: 0.08em;
 }
