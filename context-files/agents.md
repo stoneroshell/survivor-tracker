@@ -9,7 +9,7 @@ This document gives AI agents enough context to work effectively on the project:
 **Survivor 50 Companion** is a strategy tracker for Survivor Season 50. It is a single-page app that lets users:
 
 - View and reorder the 24 cast members across three tribes (Vatu, Kalo, Cila).
-- Assign alliance colors to players and switch between Tribe Standing View and Alliance View.
+- Assign alliance colors to players and switch between Tribe Hierarchy View and Alliance View.
 - Track elimination (active / eliminated / jury) and optionally resurrect players.
 - Add up to three advantage icons per player (Immunity Idol, Advantage, Celebrity Advantage).
 
@@ -45,7 +45,7 @@ Initial roster is built from `SURVIVOR_50_ROSTER` (name + image URL per player).
 ## Architecture
 
 - **Page:** `src/app/page.tsx` – Header, subhead (SURVIVOR font), main content, footer with red Reset button (confirmation → clear localStorage + reload). Reset is in normal document flow (bottom of page), not viewport-fixed.
-- **TribeBoard** (`src/components/TribeBoard.tsx`): Top-level board. Holds `DndContext`, view toggle (Tribe Standing / Alliance View), three `TribeColumn`s for active players, then Jury and Eliminated sections. Reads/writes `players` and `viewMode` from the store. Handles drag-end: reorder within tribe or move between tribes; updates `tribe` and `tribeOrder` via `setPlayers`.
+- **TribeBoard** (`src/components/TribeBoard.tsx`): Top-level board. Holds `DndContext`, view toggle (Tribe Hierarchy / Alliance View), three `TribeColumn`s for active players, then Jury and Eliminated sections. Reads/writes `players` and `viewMode` from the store. Handles drag-end: reorder within tribe or move between tribes; updates `tribe` and `tribeOrder` via `setPlayers`.
 - **TribeColumn** (`src/components/TribeColumn.tsx`): One tribe column. Receives `players` (already filtered by tribe), `viewMode`, and tribe config. Uses `useDroppable` and `SortableContext` (verticalListSortingStrategy). **Sorting:** tribe view = by `tribeOrder`; alliance view = group by `allianceColor`, sort groups (null last, then by count desc, then color asc), within group by `tribeOrder`. Does **not** mutate `tribeOrder`; display order only.
 - **PlayerCard** (`src/components/PlayerCard.tsx`): Single player card. Uses `useSortable` when used in a column (receives ref, style, listeners, `isDragging`). Shows avatar (with optional face-focus zoom and pan left/right for specific players), name, advantage slots (or placeholders), alliance strip if `allianceColor`, menu (•••). Menu: Set/Remove Alliance, Add Advantage (if &lt; 3), Remove Advantages (if any), Eliminate / Eliminate to Jury (if active), Resurrect (if not active). Eliminated/jury cards: reduced opacity, grayscale avatar, red X overlay, no drag. Portal for dropdown so it renders above other cards (high z-index). Menus for jury/eliminated cards open upward (`openMenuUpward`) so they are not cut off at the bottom of the window.
 - **AdvantageIcon** (`src/components/AdvantageIcon.tsx`): Renders one advantage icon with optional mount animation (scale in + brief glow) and type-specific hover glow (idol=gold, advantage=blue, celebrity=purple). Only animates when `animateOnMount` is true (e.g. just added); no animation on refresh.

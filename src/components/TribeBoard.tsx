@@ -187,7 +187,7 @@ export function TribeBoard() {
                 : "text-muted hover:text-foreground"
             }`}
           >
-            Tribe Standing View
+            Tribe Hierarchy View
           </button>
           <button
             type="button"

@@ -128,18 +128,26 @@ export function TribeColumn({
         items={displayPlayers.map((p) => p.id)}
         strategy={verticalListSortingStrategy}
       >
-        <ul
-          className="flex min-h-[2rem] flex-col gap-3"
-          aria-label={`Players in ${tribeName}`}
-        >
-          {displayPlayers.map((player) => (
-            <SortablePlayerCard
-              key={player.id}
-              player={player}
-              tribeBorderClass={tribeBorderClass}
+        <div className={viewMode === "tribe" ? "relative" : ""}>
+          {viewMode === "tribe" && (
+            <div
+              className="tribe-hierarchy-bar absolute left-0 top-0 bottom-0 w-1.5 rounded-full"
+              aria-hidden
             />
-          ))}
-        </ul>
+          )}
+          <ul
+            className={`flex min-h-[2rem] flex-col gap-3 ${viewMode === "tribe" ? "pl-4" : ""}`}
+            aria-label={`Players in ${tribeName}`}
+          >
+            {displayPlayers.map((player) => (
+              <SortablePlayerCard
+                key={player.id}
+                player={player}
+                tribeBorderClass={tribeBorderClass}
+              />
+            ))}
+          </ul>
+        </div>
       </SortableContext>
     </section>
   );
