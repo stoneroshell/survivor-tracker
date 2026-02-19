@@ -16,6 +16,21 @@ const ADVANTAGE_CONFIG: Array<{
   { id: "celebrity_advantage", label: "Celebrity Advantage", imagePath: "/images/celebrity-advantage.svg" },
 ];
 
+/** Player ids that need avatar zoom/pan to focus on face (Colby, Q, Stephenie, Aubry, Chrissy, Rick). */
+const FACE_FOCUS_PLAYER_IDS = new Set([
+  "vatu-0", // Colby
+  "vatu-4", // Q
+  "vatu-5", // Stephenie
+  "vatu-7", // Aubry
+  "kalo-7", // Chrissy
+  "cila-6", // Rick
+]);
+
+/** Pan avatar right to center face: Q, Charlie, Ozzy, Rick. */
+const AVATAR_PAN_RIGHT_IDS = new Set(["vatu-4", "kalo-4", "cila-4", "cila-6"]);
+/** Pan avatar left to center face: Cirie, Savannah, Kamilla, Kyle, Rizo. */
+const AVATAR_PAN_LEFT_IDS = new Set(["cila-3", "cila-1", "kalo-3", "vatu-6", "vatu-2"]);
+
 const ALLIANCE_PRESET_COLORS = [
   "#E10600", // Crimson Red
   "#1F3C88", // Deep Royal Blue
@@ -178,7 +193,7 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
           <img
             src={image}
             alt={name}
-            className={`h-full w-full object-cover object-top ${!isActive ? "grayscale" : ""}`}
+            className={`h-full w-full object-cover ${AVATAR_PAN_RIGHT_IDS.has(playerId) ? "object-[35%_0%]" : AVATAR_PAN_LEFT_IDS.has(playerId) ? "object-[65%_0%]" : "object-top"} ${FACE_FOCUS_PLAYER_IDS.has(playerId) ? "scale-150 origin-top" : ""} ${!isActive ? "grayscale" : ""}`}
             width={40}
             height={40}
           />
