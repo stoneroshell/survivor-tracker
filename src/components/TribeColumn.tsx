@@ -88,8 +88,8 @@ function SortablePlayerCard({
         advantages={player.advantages}
         status={player.status}
         isFavorite={player.isFavorite ?? false}
-        {...attributes}
-        {...listeners}
+        dragHandleAttributes={attributes}
+        dragHandleListeners={listeners}
       />
     </li>
   );
