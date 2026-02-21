@@ -18,6 +18,7 @@ export interface Player {
   allianceColor: string | null;
   status: PlayerStatus;
   advantages: AdvantageId[];
+  isFavorite?: boolean;
 }
 
 interface SurvivorState {
@@ -29,6 +30,7 @@ interface SurvivorState {
   setPlayerStatus: (playerId: string, status: PlayerStatus) => void;
   addPlayerAdvantage: (playerId: string, advantageId: AdvantageId) => void;
   removePlayerAdvantages: (playerId: string) => void;
+  setPlayerFavorite: (playerId: string, isFavorite: boolean) => void;
 }
 
 /** Single source of truth for Survivor 50 cast (name + image URL). Used for initial state and migration. */
@@ -74,6 +76,7 @@ function buildInitialPlayers(): Player[] {
     allianceColor: null,
     status: "active" as PlayerStatus,
     advantages: [],
+    isFavorite: false,
   }));
 }
 
@@ -112,6 +115,12 @@ export const useSurvivorStore = create<SurvivorState>()(
             p.id === playerId ? { ...p, advantages: [] } : p
           ),
         })),
+      setPlayerFavorite: (playerId, isFavorite) =>
+        set((state) => ({
+          players: state.players.map((p) =>
+            p.id === playerId ? { ...p, isFavorite } : p
+          ),
+        })),
     }),
     {
       name: "survivor-50-tracker",
@@ -126,6 +135,7 @@ export const useSurvivorStore = create<SurvivorState>()(
             ...player,
             status: (player as Player).status ?? "active",
             advantages: (player as Player).advantages ?? [],
+            isFavorite: (player as Player).isFavorite ?? false,
           };
           const roster = rosterById[base.id];
           if (roster) {
@@ -135,7 +145,7 @@ export const useSurvivorStore = create<SurvivorState>()(
         });
         return { ...p, players } as { players: Player[]; viewMode: ViewMode };
       },
-      version: 2,
+      version: 3,
       storage: createJSONStorage(() =>
         typeof window !== "undefined"
           ? localStorage

@@ -16,20 +16,26 @@ const ADVANTAGE_CONFIG: Array<{
   { id: "celebrity_advantage", label: "Celebrity Advantage", imagePath: "/images/celebrity-advantage.svg" },
 ];
 
-/** Player ids that need avatar zoom/pan to focus on face (Colby, Q, Stephenie, Aubry, Chrissy, Rick). */
+/** Player ids that need avatar zoom/pan to focus on face (Colby, Q, Stephenie, Aubry, Chrissy, Rick, Kamilla). */
 const FACE_FOCUS_PLAYER_IDS = new Set([
   "vatu-0", // Colby
   "vatu-4", // Q
   "vatu-5", // Stephenie
   "vatu-7", // Aubry
+  "kalo-3", // Kamilla
   "kalo-7", // Chrissy
   "cila-6", // Rick
 ]);
+
+/** Extra zoom + pan up for face focus (Aubry, Chrissy). */
+const EXTRA_FACE_ZOOM_PLAYER_IDS = new Set(["vatu-7", "kalo-7"]);
 
 /** Pan avatar right to center face: Q, Charlie, Ozzy, Rick. */
 const AVATAR_PAN_RIGHT_IDS = new Set(["vatu-4", "kalo-4", "cila-4", "cila-6"]);
 /** Pan avatar left to center face: Cirie, Savannah, Kamilla, Kyle, Rizo. */
 const AVATAR_PAN_LEFT_IDS = new Set(["cila-3", "cila-1", "kalo-3", "vatu-6", "vatu-2"]);
+/** Pan avatar up to focus on face: Aubry, Chrissy. */
+const AVATAR_PAN_UP_IDS = new Set(["vatu-7", "kalo-7"]);
 
 const ALLIANCE_PRESET_COLORS = [
   "#E10600", // Crimson Red
@@ -59,6 +65,7 @@ export interface PlayerCardProps
   openMenuUpward?: boolean;
   style?: React.CSSProperties;
   isDragging?: boolean;
+  isFavorite?: boolean;
 }
 
 type MenuView = "closed" | "menu" | "colors" | "advantages";
@@ -76,6 +83,7 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
       openMenuUpward = false,
       style,
       isDragging,
+      isFavorite = false,
       ...rest
     },
     ref
@@ -88,6 +96,7 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
     const removePlayerAdvantages = useSurvivorStore(
       (s) => s.removePlayerAdvantages
     );
+    const setPlayerFavorite = useSurvivorStore((s) => s.setPlayerFavorite);
     const isActive = status === "active";
     const [menuView, setMenuView] = useState<MenuView>("closed");
     const [dropdownRect, setDropdownRect] = useState<DOMRect | null>(null);
@@ -160,6 +169,11 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
       setMenuView("closed");
     }
 
+    function handleSetFavorite(favorite: boolean) {
+      setPlayerFavorite(playerId, favorite);
+      setMenuView("closed");
+    }
+
     function handleAddAdvantage(advantageId: AdvantageId) {
       const newIndex = advantages.length;
       addPlayerAdvantage(playerId, advantageId);
@@ -177,7 +191,11 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
       <article
         ref={ref}
         style={style}
-        className={`relative flex min-h-[4rem] items-stretch gap-6 rounded-card border border-border/80 bg-surfaceCard px-3 py-2.5 ${
+        className={`relative flex min-h-[4rem] items-stretch gap-6 rounded-card border bg-surfaceCard px-3 py-2.5 ${
+          isFavorite
+            ? "border-tribalGold shadow-[0_0_18px_-4px_rgba(184,134,11,0.5)]"
+            : "border-border/80"
+        } ${
           !isActive
             ? "opacity-55"
             : isDragging
@@ -193,14 +211,14 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
           <img
             src={image}
             alt={name}
-            className={`h-full w-full object-cover ${AVATAR_PAN_RIGHT_IDS.has(playerId) ? "object-[35%_0%]" : AVATAR_PAN_LEFT_IDS.has(playerId) ? "object-[65%_0%]" : "object-top"} ${FACE_FOCUS_PLAYER_IDS.has(playerId) ? "scale-150 origin-top" : ""} ${!isActive ? "grayscale" : ""}`}
+            className={`h-full w-full object-cover ${AVATAR_PAN_UP_IDS.has(playerId) ? "object-[50%_2%]" : AVATAR_PAN_RIGHT_IDS.has(playerId) ? "object-[35%_0%]" : AVATAR_PAN_LEFT_IDS.has(playerId) ? "object-[65%_0%]" : "object-top"} ${EXTRA_FACE_ZOOM_PLAYER_IDS.has(playerId) ? "scale-[2] origin-top" : FACE_FOCUS_PLAYER_IDS.has(playerId) ? "scale-150 origin-top" : ""} ${!isActive ? "grayscale" : ""}`}
             width={40}
             height={40}
           />
         </div>
         <div className="flex min-w-0 flex-1 flex-col self-stretch">
           <div className="flex flex-1 items-center">
-            <p className="font-body truncate text-lg font-medium text-foreground">
+            <p className="font-body truncate text-[1.2375rem] font-medium text-foreground">
               {name}
             </p>
           </div>
@@ -293,6 +311,41 @@ export const PlayerCard = forwardRef<HTMLElement, PlayerCardProps>(
                       onClick={handleRemoveAlliance}
                     >
                       Remove Alliance
+                    </button>
+                  )}
+                  {!isFavorite ? (
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-border/40"
+                      role="menuitem"
+                      onClick={() => handleSetFavorite(true)}
+                    >
+                      <img
+                        src="/images/star-gold.svg"
+                        alt=""
+                        width={16}
+                        height={16}
+                        className="h-4 w-4 shrink-0 object-contain"
+                        aria-hidden
+                      />
+                      Add Favorite
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-border/40"
+                      role="menuitem"
+                      onClick={() => handleSetFavorite(false)}
+                    >
+                      <img
+                        src="/images/star-gold.svg"
+                        alt=""
+                        width={16}
+                        height={16}
+                        className="h-4 w-4 shrink-0 object-contain"
+                        aria-hidden
+                      />
+                      Remove Favorite
                     </button>
                   )}
                   {advantages.length < 3 && (

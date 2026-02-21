@@ -76,6 +76,7 @@ function TribeBoardStaticCard({ player }: { player: Player }) {
       tribeBorderClass={TRIBE_BORDER[player.tribe]}
       advantages={player.advantages}
       status={player.status}
+      isFavorite={player.isFavorite ?? false}
       openMenuUpward
     />
   );
