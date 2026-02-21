@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   title: "Survivor 50 Tracker",
   description: "Strategy Companion Board for Survivor Season 50",
   icons: {
-    icon: "/images/og-image.png",
+    icon: "/favicon-v1.ico",
   },
   openGraph: {
     title: "Survivor 50 Tracker",
